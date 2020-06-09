@@ -15,6 +15,7 @@ def main():
     (options, args) = parser.parse_args()
     ext = options.extension
     inp = [options.input] if options.input else []
+    n = options.number
     out = options.output
     if len(inp) == 0:
         pytrend = TrendReq()
@@ -27,10 +28,10 @@ def main():
 
     with open('list.txt', 'w') as l:
         for query in inp:
-            for url in search('filetype:%s %s' % (ext, query), num=10, stop=10, pause=2):
+            for url in search('filetype:%s %s' % (ext, query), num=n, stop=10, pause=2):
                 name = url.split('/')[-1]
                 print(url)
-                r = requests.get(url)
+                r = requests.get(url, verify=False)
 
                 with open(os.path.join(out, name), 'wb') as f:
                     f.write(r.content)
@@ -41,5 +42,6 @@ def main():
 if __name__ == '__main__':
     parser.add_option('-e', '--extension', help='select an extension to download')
     parser.add_option('-i', '--input', help='select input query', default="")
+    parser.add_option('-n', '--number', help='select number of output', default=10)
     parser.add_option('-o', '--output', help='location for downloaded files', default="downloaded")
     main()
