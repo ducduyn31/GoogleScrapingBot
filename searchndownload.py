@@ -1,7 +1,7 @@
 import os
 from optparse import OptionParser
 
-import requests
+import urllib.request
 from googlesearch import search
 from pytrends.request import TrendReq
 
@@ -31,10 +31,16 @@ def main():
             for url in search('filetype:%s %s' % (ext, query), num=n, stop=10, pause=2):
                 name = url.split('/')[-1]
                 print(url)
-                r = requests.get(url, verify=False)
+                try:
+                    r = urllib.request.urlopen(url)
+                except Exception as e:
+                    print(e)
+                    continue
+
+                datatowrite = r.read()
 
                 with open(os.path.join(out, name), 'wb') as f:
-                    f.write(r.content)
+                    f.write(datatowrite)
 
                 l.write(os.path.abspath(os.path.join(out, name)) + '\n')
 
