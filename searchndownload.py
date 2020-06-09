@@ -1,0 +1,45 @@
+import os
+from optparse import OptionParser
+
+import requests
+from googlesearch import search
+from pytrends.request import TrendReq
+
+parser = OptionParser()
+
+countries = ['india', 'united_states', 'japan', 'united_kingdom', 'france', 'vietnam', 'indonesia', 'brazil',
+             'south_korea', 'canada', 'australia', 'mexico']
+
+
+def main():
+    (options, args) = parser.parse_args()
+    ext = options.extension
+    inp = [options.input] if options.input else []
+    out = options.output
+    if len(inp) == 0:
+        pytrend = TrendReq()
+        inp = []
+        for country in countries:
+            inp += pytrend.trending_searches(pn=country).values.tolist()
+
+    if not os.path.exists(out):
+        os.makedirs(out)
+
+    with open('list.txt', 'w') as l:
+        for query in inp:
+            for url in search('filetype:%s %s' % (ext, query), num=10, stop=10, pause=2):
+                name = url.split('/')[-1]
+                print(url)
+                r = requests.get(url)
+
+                with open(os.path.join(out, name), 'wb') as f:
+                    f.write(r.content)
+
+                l.write(os.path.abspath(os.path.join(out, name)) + '\n')
+
+
+if __name__ == '__main__':
+    parser.add_option('-e', '--extension', help='select an extension to download')
+    parser.add_option('-i', '--input', help='select input query', default="")
+    parser.add_option('-o', '--output', help='location for downloaded files', default="downloaded")
+    main()
