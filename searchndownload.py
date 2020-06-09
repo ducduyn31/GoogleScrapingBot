@@ -15,7 +15,7 @@ def main():
     (options, args) = parser.parse_args()
     ext = options.extension
     inp = [options.input] if options.input else []
-    n = options.number
+    n = int(options.number)
     out = options.output
     if len(inp) == 0:
         pytrend = TrendReq()
