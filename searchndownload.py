@@ -1,7 +1,8 @@
 import os
+import random
+import urllib.request
 from optparse import OptionParser
 
-import urllib.request
 from googlesearch import search
 from pytrends.request import TrendReq
 
@@ -26,11 +27,16 @@ def main():
     if not os.path.exists(out):
         os.makedirs(out)
 
-    with open('list.txt', 'w') as l:
+    with open('list-{}.txt'.format(ext), 'w') as l:
         for query in inp:
+            print('Searching for: %s' % query)
             for url in search('filetype:%s %s' % (ext, query), num=n, stop=10, pause=2):
                 name = url.split('/')[-1]
-                print(url)
+                fext = name.split('.')[-1]
+
+                if fext != ext:
+                    continue
+
                 try:
                     r = urllib.request.urlopen(url)
                 except Exception as e:
@@ -38,6 +44,11 @@ def main():
                     continue
 
                 datatowrite = r.read()
+
+                if os.path.isfile(os.path.join(out, name)):
+                    names = name.split('.')
+                    names[-2] = names[-2] + str(random.randint(1, 10000))
+                    name = '.'.join(names)
 
                 with open(os.path.join(out, name), 'wb') as f:
                     f.write(datatowrite)
