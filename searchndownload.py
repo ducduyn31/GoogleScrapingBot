@@ -22,7 +22,9 @@ def main():
         pytrend = TrendReq()
         inp = []
         for country in countries:
-            inp += pytrend.trending_searches(pn=country).values.tolist()
+            terms = pytrend.trending_searches(pn=country).values.tolist()
+            for term in terms:
+                inp.append(term[0])
 
     if not os.path.exists(out):
         os.makedirs(out)
